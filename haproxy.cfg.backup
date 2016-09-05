@@ -67,15 +67,15 @@ userlist auth_list
 
 frontend www-http
         bind :80
- 	acl nexus hdr(host) -i 12-nexus.lab.int
- 	acl nexus hdr_end(host) -i 12-a.lab.int
+# 	acl nexus hdr(host) -i 12-a.lab.int
+# 	acl nexus hdr_end(host) -i 12-a.lab.int
 
         redirect scheme https if { hdr(Host) -i lab.int } !{ ssl_fc }
         redirect scheme https if { hdr_end(Host) -i lab.int } !{ ssl_fc }
 
         reqadd X-Forwarded-Proto:\ http
- 	use_backend nexus_backend if nexus
-	use_backend registry_backend
+# 	use_backend nexus_backend if nexus
+	use_backend nexus_backend
 # 	default_backend www-backend
 
 ###################################
@@ -86,16 +86,16 @@ frontend www-https
         bind :443 ssl crt /etc/haproxy/domain.pem
         reqadd X-Forwarded-Proto:\ https
 
- 	acl registry hdr(host) -i 12-a.lab.int
-        acl nexus hdr(host) -i 12-nexus.lab.int
+# 	acl registry hdr(host) -i 12-a.lab.int
+        acl nexus hdr(host) -i 12-a.lab.int
 
 
         # Registry Auth
- 	acl auth_registry http_auth_group(auth_list) microservices
- 	use_backend registry_backend_auth if !auth_registry { ssl_fc } registry
+# 	acl auth_registry http_auth_group(auth_list) microservices
+# 	use_backend registry_backend_auth if !auth_registry { ssl_fc } registry
 
         use_backend nexus_backend if nexus
- 	default_backend registry_backend
+# 	default_backend registry_backend
 
 # 	default_backend www-backend
 
@@ -103,16 +103,16 @@ frontend www-https
 ### BACKEND
 ##################################
 
-backend registry_backend
- 	option httpchk HEAD /v2 HTTP/1.0
- 	balance roundrobin
- 	server docker-registry 10.0.0.181:5000 check
+# backend registry_backend
+# 	option httpchk HEAD /v2 HTTP/1.0
+# 	balance roundrobin
+# 	server docker-registry 10.0.0.181:5000 check
 
-backend registry_backend_auth
-	errorfile 503 /etc/haproxy/registry_auth.http
+# backend registry_backend_auth
+# 	errorfile 503 /etc/haproxy/registry_auth.http
 
 backend nexus_backend
-        option httpchk HEAD / HTTP/1.0
+#       option httpchk HEAD / HTTP/1.0
         server nexus-repository 10.0.0.181:5001
 
 # backend www-all-servers
